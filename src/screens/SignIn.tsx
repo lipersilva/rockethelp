@@ -6,24 +6,39 @@ import { Envelope, Key } from 'phosphor-react-native'
 import Logo from "../assets/logo_primary.svg"
 import { Input } from "../components/input";
 import { Button } from "../components/button";
+import { Loading } from "../components/loading";
 
 export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { colors } = useTheme();
 
   function handleSignIn() {
     if(!email || !password) {
-      return Alert.alert('Entrar', 'Informe e=mail e senha');
+      return Alert.alert('Entrar', 'Informe e-mail e senha');
     }
-    // auth()
-    //   .signInWithEmailAndPassword(email, password)
-    //   .then(() => {
-    //     console.log("Logged in!");
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+    setIsLoading(true);
+    
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      // .then(() => {
+      //   console.log("Logged in!");
+      // })
+      .catch(error => {
+        console.log(error);
+        setIsLoading(false);
+        if(error.code === 'auth/inlvalid-email') {
+          return Alert.alert('Entrar', 'E-mail inválida.');
+        }
+        if(error.code === 'auth/user-not-found') {
+          return Alert.alert('Entrar', 'E-mail ou senha inválida.');
+        }
+        if(error.code === 'auth/wrong-password') {
+          return Alert.alert('Entrar', 'E-mail ou senha inválida.');
+        }
+        return Alert.alert('Entrar', 'Erro ao entrar.');
+      });
   }
 
   return (
@@ -45,7 +60,7 @@ export function SignIn() {
         secureTextEntry // hide password 
         onChangeText={setPassword} 
       />
-      <Button title="Entrar" w="full"/>
+      <Button title="Entrar" w="full" onPress={handleSignIn} isLoading={isLoading} />
       
     </VStack>
   );
